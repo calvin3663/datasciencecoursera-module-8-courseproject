@@ -1,0 +1,90 @@
+---
+title: 'Practical Machine Learning: Course Project'
+author: "Calvin Chin"
+output: html_document
+---
+
+# Synopsis 
+
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. In this project, the author will use data from accelerometers to build a machine learning algorithm that will predict activity quality from activity monitors.
+
+# Data
+
+The **training** data for this project are available here: 
+<https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv>
+
+The **test** data are available here: 
+<https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv>
+
+NOTE: The data for this project come from this source: <http://groupware.les.inf.puc-rio.br/har>
+
+# Preparing the environment
+
+```{r, warning=FALSE}
+# Load the required libraries
+library(caret)
+library(randomForest)
+
+trainingRAW <- read.csv(file="pml-training.csv")
+testingRAW <- read.csv(file="pml-testing.csv")
+
+```
+
+
+# Pre-processing
+
+```{r, warning=FALSE}
+# Remove first 7 columns that are not relevant to the model building
+trainingNew <- trainingRAW[ , -c(1:7)]
+
+
+# Remove columns that have too many NAs
+isNA <- sapply(trainingNew, function(x) mean(is.na(x))) > 0.95
+
+trainingNew <- trainingNew[ , isNA==FALSE]
+
+
+# Remove columns with Near Zero Variance
+indexNZV <- nearZeroVar(trainingNew)
+
+trainingNew <- trainingNew[ , -indexNZV]
+
+```
+
+
+# Model Building
+
+```{r, warning=FALSE}
+# Create train and test data partitions
+inTrain <- createDataPartition(y=trainingNew$classe, p=0.7, list=FALSE)
+
+training <- trainingNew[inTrain,]
+testing <- trainingNew[-inTrain,]
+
+
+# Create Model Fit using Random Forest. Cross validation (i.e cv) is used as trainControl method, with number of resampling iterations set to 3 for faster performance
+modFit <- train(classe ~ ., data=training, method="rf", trControl=trainControl(method="cv", number=3))
+
+print(modFit$finalModel)
+```
+
+
+# Cross Validation
+```{r, warning=FALSE}
+pred_testing <- predict(modFit, testing)
+
+confusionMatrix(pred_testing, testing$classe)
+```
+Cross Validation results show overall accuracy of the model is >99%
+
+
+# Now, apply Model Fit to predict the 'classe' value for the test cases provided
+```{r, warning=FALSE}
+# For the Testing dataset, Extract only the same columns prepared from the Training dataset
+requiredColumns <- names(trainingNew[,1:length(trainingNew)-1])
+testingNew <- testingRAW[ , requiredColumns]
+
+
+predict(modFit, testingNew)
+
+```
