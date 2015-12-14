@@ -1,7 +1,9 @@
 ---
 title: 'Practical Machine Learning: Course Project'
 author: "Calvin Chin"
-output: html_document
+output: 
+  html_document: 
+    keep_md: yes
 ---
 
 # Synopsis 
@@ -71,7 +73,7 @@ print(modFit$finalModel)
 
 # Cross Validation
 ```{r, warning=FALSE}
-pred_testing <- predict(modFit, testing)
+pred_testing <- predict(modFit, newdata=testing)
 
 confusionMatrix(pred_testing, testing$classe)
 ```
@@ -85,6 +87,20 @@ requiredColumns <- names(trainingNew[,1:length(trainingNew)-1])
 testingNew <- testingRAW[ , requiredColumns]
 
 
-predict(modFit, testingNew)
+pred_testingNew <- predict(modFit, newdata=testingNew)
+
+# First print prediction results onto the screen 
+print(pred_testingNew)
+
+
+# Next, write prediction results onto text files required for Course Project Part 2 Submission (1 charcter in each file)
+
+for(i in 1:length(pred_testingNew))
+{
+    filename = paste0("problem_id_", i, ".txt")
+    write.table(pred_testingNew[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+}
 
 ```
+
+

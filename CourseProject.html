@@ -123,31 +123,31 @@ print(modFit$finalModel)</code></pre>
 ##  randomForest(x = x, y = y, mtry = param$mtry) 
 ##                Type of random forest: classification
 ##                      Number of trees: 500
-## No. of variables tried at each split: 2
+## No. of variables tried at each split: 27
 ## 
-##         OOB estimate of  error rate: 0.73%
+##         OOB estimate of  error rate: 0.8%
 ## Confusion matrix:
 ##      A    B    C    D    E class.error
-## A 3902    4    0    0    0 0.001024066
-## B   15 2637    6    0    0 0.007900677
-## C    0   25 2369    2    0 0.011268781
-## D    0    0   40 2212    0 0.017761989
-## E    0    0    2    6 2517 0.003168317</code></pre>
+## A 3900    4    1    0    1 0.001536098
+## B   20 2628    7    3    0 0.011286682
+## C    0   13 2376    7    0 0.008347245
+## D    0    2   32 2217    1 0.015541741
+## E    0    2    5   12 2506 0.007524752</code></pre>
 </div>
 <div id="cross-validation" class="section level1">
 <h1>Cross Validation</h1>
-<pre class="r"><code>pred_testing &lt;- predict(modFit, testing)
+<pre class="r"><code>pred_testing &lt;- predict(modFit, newdata=testing)
 
 confusionMatrix(pred_testing, testing$classe)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1674    3    0    0    0
-##          B    0 1135   12    0    0
-##          C    0    1 1012   13    1
-##          D    0    0    2  950    4
-##          E    0    0    0    1 1077
+##          A 1671    9    0    0    0
+##          B    3 1129    4    0    0
+##          C    0    1 1021    9    1
+##          D    0    0    1  955    9
+##          E    0    0    0    0 1072
 ## 
 ## Overall Statistics
 ##                                           
@@ -162,14 +162,14 @@ confusionMatrix(pred_testing, testing$classe)</code></pre>
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            1.0000   0.9965   0.9864   0.9855   0.9954
-## Specificity            0.9993   0.9975   0.9969   0.9988   0.9998
-## Pos Pred Value         0.9982   0.9895   0.9854   0.9937   0.9991
-## Neg Pred Value         1.0000   0.9992   0.9971   0.9972   0.9990
+## Sensitivity            0.9982   0.9912   0.9951   0.9907   0.9908
+## Specificity            0.9979   0.9985   0.9977   0.9980   1.0000
+## Pos Pred Value         0.9946   0.9938   0.9893   0.9896   1.0000
+## Neg Pred Value         0.9993   0.9979   0.9990   0.9982   0.9979
 ## Prevalence             0.2845   0.1935   0.1743   0.1638   0.1839
-## Detection Rate         0.2845   0.1929   0.1720   0.1614   0.1830
-## Detection Prevalence   0.2850   0.1949   0.1745   0.1624   0.1832
-## Balanced Accuracy      0.9996   0.9970   0.9916   0.9921   0.9976</code></pre>
+## Detection Rate         0.2839   0.1918   0.1735   0.1623   0.1822
+## Detection Prevalence   0.2855   0.1930   0.1754   0.1640   0.1822
+## Balanced Accuracy      0.9980   0.9949   0.9964   0.9943   0.9954</code></pre>
 <p>Cross Validation results show overall accuracy of the model is &gt;99%</p>
 </div>
 <div id="now-apply-model-fit-to-predict-the-classe-value-for-the-test-cases-provided" class="section level1">
@@ -179,9 +179,19 @@ requiredColumns &lt;- names(trainingNew[,1:length(trainingNew)-1])
 testingNew &lt;- testingRAW[ , requiredColumns]
 
 
-predict(modFit, testingNew)</code></pre>
+pred_testingNew &lt;- predict(modFit, newdata=testingNew)
+
+# First print prediction results onto the screen 
+print(pred_testingNew)</code></pre>
 <pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B
 ## Levels: A B C D E</code></pre>
+<pre class="r"><code># Next, write prediction results onto text files required for Course Project Part 2 Submission (1 charcter in each file)
+
+for(i in 1:length(pred_testingNew))
+{
+    filename = paste0(&quot;problem_id_&quot;, i, &quot;.txt&quot;)
+    write.table(pred_testingNew[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+}</code></pre>
 </div>
 
 
